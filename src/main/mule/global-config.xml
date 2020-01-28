@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<db:config name="cost_expresses_database_config" doc:name="Database Config" doc:id="04eb76d6-e9cf-4092-8ace-4ae4a1e814fc" >
+		<db:my-sql-connection host="${secure::ce.db.host}" port="${secure::ce.db.port}" user="${secure::ce.db.user}" password="${secure::ce.db.password}" database="${secure::ce.db.database}" />
+	</db:config>
+</mule>

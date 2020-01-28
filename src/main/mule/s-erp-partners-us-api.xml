@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+    <http:listener-config name="s-erp-partners-us-api-httpListenerConfig">
+        <http:listener-connection host="${secure::http.listener.host}" port="${secure::http.listener.port}" />
+    </http:listener-config>
+    <apikit:config name="s-erp-partners-us-api-config" raml="s-erp-partners-us-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+	<flow name="s-erp-partners-us-api-main">
+        <http:listener config-ref="s-erp-partners-us-api-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+            </http:error-response>
+        </http:listener>
+        <ee:transform doc:name="Transform Message" doc:id="32c44a54-e60d-4b1d-8bd9-e139078d798c" >
+			<ee:message >
+			</ee:message>
+				<ee:variables>
+				<ee:set-variable variableName="vCorrelationId"><![CDATA[attributes.headers['X-COSTA-TRANSACTION-ID']]]></ee:set-variable>
+				<ee:set-variable variableName="vRequestId"><![CDATA[uuid() as String]]></ee:set-variable>
+				<ee:set-variable variableName="vTransactionId"><![CDATA[attributes.headers.'x-costa-transaction-id']]></ee:set-variable>
+				<ee:set-variable variableName="vLogPayload"><![CDATA[if (payload != null)  payload  else  null]]></ee:set-variable>
+				<ee:set-variable variableName="vFranchise"><![CDATA[attributes.headers['franchise']]]></ee:set-variable>
+				</ee:variables>
+		</ee:transform>
+		<apikit:router config-ref="s-erp-partners-us-api-config" />
+		<error-handler ref="globalError_Handler" />
+    </flow>
+    <flow name="s-erp-partners-us-api-console">
+        <http:listener config-ref="s-erp-partners-us-api-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="s-erp-partners-us-api-config" />
+    </flow>
+    <flow name="put:\partners:application\json:s-erp-partners-us-api-config">
+		<flow-ref doc:name="s-erp-partners-us-api-update-partner-sub-flow" doc:id="dc572993-1f6b-4bfa-a142-3393ce50c5fd" name="s-erp-partners-us-api-update-partner-sub-flow"/>
+    </flow>
+    <flow name="get:\partners\(partnerReference):s-erp-partners-us-api-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" doc:id="99872512-8939-4246-91da-ed3ae5614f4c">
+            <ee:variables>
+                <ee:set-variable variableName="partnerReference"><![CDATA[attributes.uriParams.partnerReference]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+		<flow-ref doc:name="s-erp-partners-us-api-get-partner-partnerReference-sub-flow" doc:id="e6ce56dc-04c7-4245-8fc8-1740a5806088" name="s-erp-partners-us-api-get-partner-partnerReference-sub-flow"/>
+    </flow>
+    <flow name="get:\partners:s-erp-partners-us-api-config">
+		<flow-ref doc:name="s-erp-partners-us-api-get-partner-list-sub-flow" doc:id="2e5dfa36-02a8-4155-b447-5a58637667e2" name="s-erp-partners-us-api-get-partner-list-sub-flow"/>
+    </flow>
+    <flow name="post:\partners:application\json:s-erp-partners-us-api-config">
+		<flow-ref doc:name="s-erp-partners-us-api-post-create-partner-sub-flow" doc:id="4d1b515a-29c9-4ad0-a6e0-6d15c64cbd82" name="s-erp-partners-us-api-post-create-partner-sub-flow"/>
+    </flow>
+</mule>
