@@ -25,7 +25,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 				</ee:variables>
 		</ee:transform>
 		<apikit:router config-ref="s-erp-partners-us-api-config" />
-		<error-handler ref="globalError_Handler" />
+		<!-- <error-handler ref="globalError_Handler" /> -->
     </flow>
     <flow name="s-erp-partners-us-api-console">
         <http:listener config-ref="s-erp-partners-us-api-httpListenerConfig" path="/console/*">

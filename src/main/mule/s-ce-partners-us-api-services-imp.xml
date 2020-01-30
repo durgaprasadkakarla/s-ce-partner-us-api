@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd">
+	<sub-flow name="s-erp-partners-us-api-update-partner-sub-flow" doc:id="3a95335a-4f42-40c2-a15b-3c0be860a46b" >
+		<ee:transform doc:name="Transform Message" doc:id="3df9af0d-ce05-46cf-9606-0f74a1aab199" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="flowName" ><![CDATA[%dw 2.0
+output application/java
+---
+"s-erp-partners-us-api-update-partner-sub-flow"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="Flow Reference" doc:id="31c8b465-dab6-4d3b-9803-41f0b18d4b7f" name="entry-logger-flow"/>
+	</sub-flow>
+	<sub-flow name="s-erp-partners-us-api-get-partner-partnerReference-sub-flow" doc:id="d1949c5f-c29a-462a-bcfd-2c7b51306b26" >
+		<ee:transform doc:name="Transform Message" doc:id="3f238e71-9c01-4b19-8900-29bf33a42463" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="flowName" ><![CDATA[%dw 2.0
+output application/java
+---
+"s-erp-partners-us-api-get-partner-partnerReference-sub-flow"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="s-erp-partners-us-api-get-partner-list-sub-flow" doc:id="bd11436b-c885-4a94-b5f4-d7b470cd3871" >
+		<ee:transform doc:name="Transform Message" doc:id="cdc2f467-3675-490c-bbc2-474b1aa02fc7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+}]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="flowName" ><![CDATA[%dw 2.0
+output application/java
+---
+"s-erp-partners-us-api-get-partner-list-sub-flow"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+	</sub-flow>
+	<sub-flow name="s-erp-partners-us-api-post-create-partner-sub-flow" doc:id="56b31caf-d46f-4401-9236-289685dd659d" >
+		<ee:transform doc:name="Transform Message" doc:id="456bbcc1-b4af-4d03-a6d8-b45b00cac110" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="flowName" ><![CDATA[%dw 2.0
+output application/java
+---
+"s-erp-partners-us-api-post-create-partner-sub-flow"]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<try doc:name="Try" doc:id="3a01b17a-9628-45ea-9c74-43e9dbd9c718" transactionType="XA">
+			<db:stored-procedure doc:name="Stored procedure" doc:id="ba3afeac-42d5-48dd-99f2-110f1c90352b" config-ref="cost_expresses_database_config" target="vDBPayload">
+				<db:sql >call Get_PartnerId(:response)</db:sql>
+				<db:output-parameters >
+					<db:output-parameter key="response" type="INTEGER" />
+				</db:output-parameters>
+		</db:stored-procedure>
+			<ee:transform doc:name="Transform Message" doc:id="85fa0322-d6d9-47b9-afbf-b756b975cec4">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+{
+	partnerReference : payload.partnerReference,
+	systemPartnerId : vars.vDBPayload[1],
+	partnerStatus : payload.partnerStatus,
+	name : payload.name,
+	serviceAgent : payload.serviceAgent,
+	modCount : payload.modCount,
+	createdDateTime : now(),
+	lastModifiedDateTime : now(),
+	siteCount : payload.siteCount,
+	activeSiteCount : payload.activeSiteCount,
+	machineCount : payload.machineCount,
+	activeMachineCount : payload.activeMachineCount
+	
+
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<choice doc:name="Choice" doc:id="e0f2cb56-f175-4c6a-93ef-4c960ec284f4" >
+				<when expression="if(vars.vDBPayload[1] != -1)">
+					<ee:transform doc:name="Transform Message" doc:id="063c8a08-3ebb-4728-a3ee-a289988c2769" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</when>
+				<otherwise >
+					<ee:transform doc:name="Transform Message" doc:id="8cf42d89-058d-4702-a0fa-e7c1b2020e5f" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</otherwise>
+			</choice>
+		</try>
+	</sub-flow>
+</mule>
